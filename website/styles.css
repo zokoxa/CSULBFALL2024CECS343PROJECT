@@ -1,0 +1,12 @@
+body{
+    background-color: gainsboro;
+    background-image: url("./assests/herobkg.jpeg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+}
+
+#hero{
+    background-color: rgba(255, 255, 255, 0.9);
+}
