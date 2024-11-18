@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (response.ok) {
                     const result = await response.json();
-                    alert(result.message); // Show success message
+                    alert(`${result.message} Your reservation ID is: ${result.reservationId}`); // Show success message
                 } else {
                     alert("Failed to make reservation.");
                 }
