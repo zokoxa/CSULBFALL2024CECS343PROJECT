@@ -10,6 +10,7 @@ connectDB();
 
 
 // Middleware
+app.use(express.json()); // Parses JSON request bodies
 app.use(bodyParser.json()); // Parses incoming JSON requests
 app.use(express.static("public")); // Serves static files from 'public' directory
 
@@ -60,13 +61,28 @@ app.post("/api/reserve", async (req, res) => {
     }
 });
 
-app.post("/api/manageReservation", async (req, res) => {
-    const { reservationId, licensePlate } = req.body;
-    console.log("Received request for ID:", reservationId, "and License Plate:", licensePlate);
+app.delete("/api/reservation/:id", async (req, res) => {
+    const reservationId = req.params.id;
 
     try {
+        const result = await Reservation.findByIdAndDelete(reservationId);
+
+        if (!result) {
+            return res.status(404).json({ message: "Reservation not found or already canceled." });
+        }
+
+        res.json({ message: "Reservation canceled successfully." });
+    } catch (error) {
+        console.error("Error canceling reservation:", error);
+        res.status(500).json({ message: "An error occurred. Please try again later." });
+    }
+});
+
+app.post("/api/manageReservation", async (req, res) => {
+    const { reservationId, licensePlate } = req.body;
+    
+    try {
         const reservation = await Reservation.findOne({ _id: reservationId, licensePlate });
-        console.log("Reservation found:", reservation); // Log the found reservation
 
         if (!reservation) {
             return res.status(404).json({ message: "Reservation not found." });
@@ -78,8 +94,6 @@ app.post("/api/manageReservation", async (req, res) => {
         res.status(500).json({ message: "An error occurred. Please try again later." });
     }
 });
-
-
 
 // Start the server
 app.listen(PORT, () => {
