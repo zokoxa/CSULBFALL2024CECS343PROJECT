@@ -1,6 +1,6 @@
 body{
     background-color: gainsboro;
-    background-image: url("./assests/herobkg.jpeg");
+    background-image: url("../assests/herobkg.jpeg");
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
