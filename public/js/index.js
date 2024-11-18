@@ -1,51 +1,60 @@
-// public/js/index.js
-
 // Wait for the DOM content to load
 document.addEventListener("DOMContentLoaded", function () {
     console.log("JavaScript loaded"); // Debugging statement
 
-    // Function to fetch available first-come, first-serve spots
-    async function fetchAvailability() {
+    // Function to fetch availability of reserved spots
+    async function fetchReservedAvailability() {
         try {
-            const response = await fetch("http://localhost:3000/api/availabilityFirstCome");
+            const response = await fetch("http://localhost:3000/api/availabilityReserved");
             const data = await response.json();
-            document.getElementById("spots-count").textContent = data.availableSpots;
+            document.getElementById("spots-count").textContent = data.availableSpots; // Update available spots count
         } catch (error) {
-            console.error("Error fetching availability:", error);
+            console.error("Error fetching reserved availability:", error);
         }
     }
 
     // Call the function every 10 seconds to update availability
-    setInterval(fetchAvailability, 10000);
+    setInterval(fetchReservedAvailability, 10000);
 
     // Initial call to populate on page load
-    fetchAvailability();
+    fetchReservedAvailability();
 
     // Handle form submission for reservations
     const reservationForm = document.querySelector("form");
+    const qrCodeContainer = document.getElementById("qrCodeContainer");
+
     if (reservationForm) {
         reservationForm.addEventListener("submit", async function (event) {
-            event.preventDefault(); // Prevents the form from submitting normally
+            event.preventDefault(); // Prevent default form submission
             console.log("Form submission intercepted"); // Debugging statement
 
             // Collect form data
             const reservationDate = document.getElementById("reservationDate").value;
             const licensePlate = document.getElementById("licensePlate").value;
             const lastName = document.getElementById("lname").value;
-        
-            // Send data to the backend (adjust URL to match your backend)
+
             try {
+                // Send data to the backend
                 const response = await fetch("http://localhost:3000/api/reserve", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ reservationDate, licensePlate, lastName })
+                    body: JSON.stringify({ reservationDate, licensePlate, lastName }),
                 });
 
                 if (response.ok) {
                     const result = await response.json();
-                    alert(`${result.message} Your reservation ID is: ${result.reservationId}`); // Show success message
+
+                    // Show success message and reservation ID
+                    alert(`${result.message} Your reservation ID is: ${result.reservationId}`);
+
+                    // Display QR code
+                    qrCodeContainer.innerHTML = ""; // Clear any existing QR code
+                    const qrCodeImage = document.createElement("img");
+                    qrCodeImage.src = result.qrCode; // Use the QR code returned by the backend
+                    qrCodeImage.alt = "Your QR Code";
+                    qrCodeContainer.appendChild(qrCodeImage);
                 } else {
                     alert("Failed to make reservation.");
                 }

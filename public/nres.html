@@ -15,15 +15,18 @@
         <div class="col-lg-6 mx-auto">
           <form class="py-5">
             <label for="reservationDate">Reservation Date:</label><br>
-            <input type="date" id="reservationDate" name="reservationDate"><br><br>
+            <input type="date" id="reservationDate" name="reservationDate" required><br><br>
             <label for="licensePlate">License Plate:</label><br>
-            <input type="text" id="licensePlate" name="licensePlate" placeholder="CA123ABC"><br><br>        
+            <input type="text" id="licensePlate" name="licensePlate" placeholder="CA123ABC" required><br><br>        
             <label for="lname">Last name:</label><br>
-            <input type="text" id="lname" name="lname" placeholder="Doe"><br><br>
+            <input type="text" id="lname" name="lname" placeholder="Doe" required><br><br>
             <input type="submit" value="Submit">
-        </form>
-            <a href="./index.html"><button type="button" class="btn btn-primary btn-lg px-4 gap-3">Home</button></a>
-          </div>
+          </form>
+
+          <!-- QR Code Container -->
+          <div id="qrCodeContainer" style="margin-top: 20px;"></div>
+
+          <a href="./index.html"><button type="button" class="btn btn-primary btn-lg px-4 gap-3">Home</button></a>
         </div>
       </div>
       <footer class="fixed-bottom d-flex flex-wrap justify-content-between align-items-center py-1 my-0 border-top">

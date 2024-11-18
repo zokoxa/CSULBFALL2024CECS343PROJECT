@@ -5,6 +5,7 @@ const Reservation = require("./models/reservation");
 const app = express();
 const PORT = 3000;
 const connectDB = require("../config/db");
+const QRCode = require('qrcode');
 
 connectDB();
 
@@ -19,6 +20,23 @@ app.get("/api/test", (req, res) => {
     res.json({ message: "Hello from the backend!" });
 });
 
+// Route to get the availability of reserved spots
+app.get("/api/availabilityReserved", async (req, res) => {
+    try {
+        const today = new Date().toISOString().split("T")[0]; // Get today's date
+        const reservationCount = await Reservation.countDocuments({ reservationDate: today });
+
+        // Assuming total capacity is 300 spots
+        const totalCapacity = 300;
+        const availableSpots = totalCapacity - reservationCount;
+
+        res.json({ availableSpots });
+    } catch (error) {
+        console.error("Error fetching availability:", error);
+        res.status(500).json({ message: "An error occurred while fetching availability." });
+    }
+});
+
 // Reservation route
 app.post("/api/reserve", async (req, res) => {
     const { licensePlate, lastName, reservationDate } = req.body;
@@ -29,6 +47,13 @@ app.post("/api/reserve", async (req, res) => {
         if (isNaN(parsedDate.getTime())) {
             return res.status(400).json({ message: "Invalid reservation date" });
         }
+
+        // Generate a unique string or URL for the QR code
+        const qrData = `Reservation for ${licensePlate} on ${reservationDate}`;
+
+        // Generate QR code as a string (URL or base64 data)
+        const qrCode = await QRCode.toDataURL(qrData);
+        console.log("Generated QR Code:", qrCode); // Debugging log
 
         // Format the date for the capacity check
         const dateOnly = parsedDate.toISOString().split("T")[0];
@@ -46,13 +71,15 @@ app.post("/api/reserve", async (req, res) => {
         const newReservation = new Reservation({
             licensePlate,
             lastName,
-            reservationDate: parsedDate  // Ensure it's a valid Date object
+            reservationDate: parsedDate, // Ensure it's a valid Date object
+            qrCode
         });
 
         const savedReservation = await newReservation.save();
         res.json({ 
             message: "Reservation successful!",
-            reservationId: savedReservation._id // Return the `_id` to the user
+            reservationId: savedReservation._id, // Return the `_id` to the user
+            qrCode: qrCode // Return the QR code to the frontend
         });
 
     } catch (error) {
@@ -60,6 +87,7 @@ app.post("/api/reserve", async (req, res) => {
         res.status(500).json({ message: "An error occurred. Please try again later." });
     }
 });
+
 
 app.delete("/api/reservation/:id", async (req, res) => {
     const reservationId = req.params.id;
