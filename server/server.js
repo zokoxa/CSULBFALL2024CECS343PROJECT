@@ -5,6 +5,10 @@ const bodyParser = require("body-parser");
 const Reservation = require("./models/reservation");
 const app = express();
 const PORT = 3000;
+const connectDB = require("../config/db");
+
+connectDB();
+
 
 // Middleware
 app.use(bodyParser.json()); // Parses incoming JSON requests
