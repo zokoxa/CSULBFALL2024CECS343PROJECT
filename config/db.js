@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 // Replace this with your MongoDB connection string
-const mongoURI = "mongodb+srv://theuniverseequation:giAyR8wZsYsTutXK@parking-garage24.ofqvt.mongodb.net/?retryWrites=true&w=majority&appName=Parking-Garage24";
+const mongoURI = "mongodb+srv://theuniverseequation:giAyR8wZsYsTutXK@parking-garage24.ofqvt.mongodb.net/parking_database?retryWrites=true&w=majority&appName=Parking-Garage24";
 
 const connectDB = async () => {
     try {

@@ -2,34 +2,47 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("JavaScript loaded"); // Debugging statement
 
-    // Function to fetch availability of reserved spots
-    async function fetchReservedAvailability() {
-        try {
-            const response = await fetch("http://localhost:3000/api/availabilityReserved");
-            const data = await response.json();
-            document.getElementById("spots-count").textContent = data.availableSpots; // Update available spots count
-        } catch (error) {
-            console.error("Error fetching reserved availability:", error);
-        }
-    }
-
-    // Call the function every 10 seconds to update availability
-    setInterval(fetchReservedAvailability, 10000);
-
-    // Initial call to populate on page load
-    fetchReservedAvailability();
-
-    // Handle form submission for reservations
+    // Elements
+    const reservationDateInput = document.getElementById("reservationDate");
+    const spotsCountElement = document.getElementById("spots-count");
     const reservationForm = document.querySelector("form");
     const qrCodeContainer = document.getElementById("qrCodeContainer");
 
+    // Function to fetch availability for a specific date
+    async function fetchReservedAvailability() {
+        try {
+            const reservationDate = reservationDateInput.value; // Get selected date
+            if (!reservationDate) {
+                spotsCountElement.textContent = "Please select a date.";
+                return;
+            }
+
+            const response = await fetch(`http://localhost:3000/api/availabilityReserved?reservationDate=${reservationDate}`);
+            if (response.ok) {
+                const data = await response.json();
+                spotsCountElement.textContent = `${data.availableSpots} spots available`;
+            } else {
+                spotsCountElement.textContent = "Error fetching availability.";
+            }
+        } catch (error) {
+            console.error("Error fetching reserved availability:", error);
+            spotsCountElement.textContent = "Error fetching availability.";
+        }
+    }
+
+    // Update available spots when the reservation date changes
+    if (reservationDateInput) {
+        reservationDateInput.addEventListener("change", fetchReservedAvailability);
+    }
+
+    // Handle form submission for reservations
     if (reservationForm) {
         reservationForm.addEventListener("submit", async function (event) {
             event.preventDefault(); // Prevent default form submission
             console.log("Form submission intercepted"); // Debugging statement
 
             // Collect form data
-            const reservationDate = document.getElementById("reservationDate").value;
+            const reservationDate = reservationDateInput.value;
             const licensePlate = document.getElementById("licensePlate").value;
             const lastName = document.getElementById("lname").value;
 
@@ -55,6 +68,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     qrCodeImage.src = result.qrCode; // Use the QR code returned by the backend
                     qrCodeImage.alt = "Your QR Code";
                     qrCodeContainer.appendChild(qrCodeImage);
+
+                    // Optionally reset form
+                    reservationForm.reset();
+                    spotsCountElement.textContent = "Please select a date.";
                 } else {
                     alert("Failed to make reservation.");
                 }
